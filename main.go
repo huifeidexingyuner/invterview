@@ -32,6 +32,7 @@ func scanDir(path string, output string) error {
 	var fd *os.File
 	var err error
 	var list []string
+	var sh1 []byte
 	var fileinfo os.FileInfo
 	fd, err = os.Create(output)
 
@@ -46,7 +47,7 @@ func scanDir(path string, output string) error {
 		if err != nil {
 			return err
 		}
-		sh1, _ := genSha1(v)
+		sh1, err = genSha1(v)
 
 		if err != nil {
 			return err
