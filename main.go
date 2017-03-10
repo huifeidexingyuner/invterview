@@ -55,7 +55,7 @@ func scanDir(path string, output string) error {
 		if fileinfo.IsDir() {
 			continue
 		}
-		value := fmt.Sprintf("%s,%d,%x\n", v, fileinfo.Size(), sh1)
+		value := fmt.Sprintf("%s,%x,%d\n", v, sh1, fileinfo.Size())
 		fd.WriteString(value)
 	}
 
