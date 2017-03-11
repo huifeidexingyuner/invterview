@@ -41,7 +41,7 @@ func getFilelist(path string, fd *os.File) error {
 		}
 		sh1, err = genSha1(path)
 
-		value := fmt.Sprintf("%s,%x,%d\n", path, sh1, f.Size())
+		value := fmt.Sprintf("%s,%x,%d\n", filepath.Base(path), sh1, f.Size())
 		fd.WriteString(value)
 		return nil
 	})
