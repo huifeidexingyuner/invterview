@@ -28,13 +28,37 @@ func genSha1(path string) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
+func getFilelist(path string, fd *os.File) error {
+	var err error
+	var sh1 []byte
+
+	err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+		if f == nil {
+			return err
+		}
+		if f.IsDir() {
+			return nil
+		}
+		sh1, err = genSha1(path)
+
+		value := fmt.Sprintf("%s,%x,%d\n", path, sh1, f.Size())
+		fd.WriteString(value)
+		return nil
+	})
+	return err
+}
+
 func scanDir(path string, output string) error {
 	var fd *os.File
 	var err error
 	var list []string
-	var sh1 []byte
-	var fileinfo os.FileInfo
+
 	fd, err = os.Create(output)
+
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
 
 	list, err = filepath.Glob(path)
 
@@ -42,22 +66,7 @@ func scanDir(path string, output string) error {
 		return err
 	}
 	for _, v := range list {
-		fmt.Println(v)
-		fileinfo, err = os.Stat(v)
-		if err != nil {
-			return err
-		}
-		sh1, err = genSha1(v)
-
-		if err != nil {
-			return err
-		}
-		fmt.Println(fileinfo.Name(), fileinfo.IsDir())
-		if fileinfo.IsDir() {
-			continue
-		}
-		value := fmt.Sprintf("%s,%x,%d\n", v, sh1, fileinfo.Size())
-		fd.WriteString(value)
+		getFilelist(v, fd)
 	}
 
 	return nil
